@@ -22,6 +22,22 @@
     <script>
       $(function() {$( "#slider" ).slider();});
     </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+    <script type="text/javascript">
+      var parameters = { src: "rtmp://" + window.location.hostname + "/rtmp/live" };
+
+      swfobject.embedSWF
+      ( "/static/StrobeMediaPlayback.swf"
+      , "strobeMediaPlayback"
+      , 640
+      , 480
+      , "10.1.0"
+      , {}
+      , parameters
+      , { allowFullScreen: "true"}
+      , { name: "strobeMediaPlayback" }
+      );
+    </script>
   </head>
 
   <body>
@@ -95,13 +111,8 @@
       });
     </script>
 
-    <embed  src="/static/StrobeMediaPlayback.swf"
-            type="application/x-shockwave-flash"
-            allowscriptaccess="always"
-            allowfullscreen="true"
-            width="640" height="480"
-            FlashVars="src=rtmp://192.168.1.116/rtmp/live">
-    </embed>
-
+       <div id="strobeMediaPlayback">
+          <p>Here supposed to be a video player. Flash blocked or not supported?</p>
+       </div>
   </body>
 </html>
