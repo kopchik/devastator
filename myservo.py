@@ -14,8 +14,8 @@ class Interpolate:
   def __init__(self, X, Y):
     if any(y - x <= 0 for x, y in zip(X, X[1:])):
       raise ValueError("X must be in strictly ascending order!")
-    X = self.X = list(map(float, X))
-    Y = self.Y = list(map(float, Y))
+    self.X = X
+    self.Y = Y
     intervals = zip(X, X[1:], Y, Y[1:])
     self.slopes = [(y2 - y1)/(x2 - x1) for x1, x2, y1, y2 in intervals]
 
