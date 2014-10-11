@@ -15,7 +15,7 @@ def cam():
   if xval:
     xcam.set_angle(int(xval))
   yval = request.forms.get('yvalue')
-  if xval:
+  if yval:
     ycam.set_angle(int(yval))
   return
 
