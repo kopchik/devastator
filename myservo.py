@@ -48,5 +48,5 @@ class MyServo:
 
   def set_angle(self, angle):
     pos = self.map[angle]
-    self.set_pos(pos, t=0.4)
+    self.set_pos(pos, t=0.8)
 
