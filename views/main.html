@@ -43,9 +43,10 @@
                     url: '/cam/reset',
                     type: 'post',
                     success: function(){
-                        // ajax callback
+                      $("#xpos").slider({value: 0});
+                      $("#ypos").slider({value: 0});
                     }, error: function(){
-                        alert('ajax failed');
+                      alert('ajax failed');
                     },
                 })
             })
