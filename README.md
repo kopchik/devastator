@@ -6,6 +6,13 @@ in /boot/cmdline.txt:
 loglevel=5 consoleblank=0 smsc95xx.turbo_mode=N
 ~~~
 
+### Camera stuff
+in /boot/config.txt
+~~~
+gpu_mem_512=128
+start_file=start_x.elf
+fixup_file=fixup_x.dat
+~~~
 ### Console
 ~~~
 systemctl start getty@ttyAMA0
