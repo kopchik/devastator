@@ -21,6 +21,8 @@ def cam():
 
 @post('/cam/reset')
 def cam():
+  xcam.reset()
+  ycam.reset()
   return
 
 @get('/')
