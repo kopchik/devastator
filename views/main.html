@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Devastator Mission Control Centre</title>
+
+    <!-- JQUERY -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <!-- JQUERY UI -->
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+
+    <!-- BOOTSTRAP -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
+     <script>
+      $(function() {$( "#slider" ).slider();});
+    </script>
+
+  </head>
+  <body>
+
+    <div class="page-header">
+      <h1>Devastator 2.0 <small>Exterminate! Exterminate!</small></h1>
+    </div>
+
+    <button id="CamReset" type="button" class="btn btn-default">Reset cam position</button>
+    <div id="xpos"></div>
+
+
+    <script>
+        $(function(){
+            $('#CamReset').on('click', function(e){
+                e.preventDefault(); // preventing default click action
+                $.ajax({
+                    url: '/cam/reset',
+                    type: 'post',
+                    success: function(){
+                        // ajax callback
+                    }, error: function(){
+                        alert('ajax failed');
+                    },
+                })
+            })
+        })
+
+      // X SLIDER
+      $(function () {
+        $("#xpos").slider({
+            min: -90,
+            max: +90,
+            slide: function (event, ui) {
+                $("input#slider_value").val(ui.value);
+            }
+        });
+      });
+
+      $( "#xpos").slider({
+        change: function(event, ui) {
+          $.ajax({
+              url: '/cam/set',
+              type: 'POST',
+              data: {'xvalue': ui.value},
+              success: function(){
+                  // ajax callback
+              }, error: function(){
+                  alert('ajax failed');
+              },
+          })
+      }
+      });
+
+    </script>
+
+  </body>
+</html>

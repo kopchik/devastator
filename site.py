@@ -1,13 +1,25 @@
 #!/usr/bin/env python3
 
-from bottle import abort, run, mount, request, load_app, default_app as app
+from bottle import abort, run, mount, load_app, default_app as app
 from bottle import static_file, view
-from bottle import get
+from bottle import get, post, request
+
+
+@post('/cam/set')
+def cam():
+  xval = request.forms.get('xvalue')
+  yval = request.forms.get('yvalue')
+
+  return
+
+@post('/cam/reset')
+def cam():
+  return
 
 @get('/')
 @view('main')
 def index():
-  return {'x':"HABA"}
+  return {}
 
 @get('/static/<filename:path>')
 def server_static(filename):
