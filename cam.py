@@ -1,20 +1,40 @@
 #!/usr/bin/env python3
 
 from RPIO import PWM
+
+from operator import itemgetter
+from bisect import bisect_left
 from time import sleep
 from sys import exit
 import atexit
 
-MIN, CENTER, MAX = 0,1,2
+
+class Interpolate:
+  # from http://stackoverflow.com/questions/7343697/linear-interpolation-python
+  def __init__(self, X, Y):
+    if any(y - x <= 0 for x, y in zip(X, X[1:])):
+      raise ValueError("X must be in strictly ascending order!")
+    X = self.X = map(float, X)
+    Y = self.Y = map(float, Y)
+    intervals = zip(X, X[1:], Y, Y[1:])
+    self.slopes = [(y2 - y1)/(x2 - x1) for x1, x2, y1, y2 in intervals]
+
+  def __getitem__(self, x):
+    i = bisect_left(self.X, x) - 1
+    return self.Y[i] + self.slopes[i] * (x - self.X[i])
+
 
 class MyServo:
-  def __init__(self, pin, servo_range, angles):
-    servo = PWM.Servo()
+  def __init__(self, pin, map):
+    X, Y = [], []
+    for x, y in sorted(map, key=itemgetter(0)):
+      X.append(x)
+      Y.append(y)
+    self.map = Interpolate(X, Y)
 
-    self.servo = servo
+    self.servo = PWM.Servo()
     self.pin = pin
-    self.servo_range = servo_range
-    self.angles = angles
+    self.center = center
     atexit.register(self.reset)
 
     def set_pos(v, t):
@@ -24,13 +44,12 @@ class MyServo:
     self.set_pos = set_pos
 
   def reset(self):
-    self.set_pos(self.servo_range[CENTER], 0.4)
+    self.set_pos(self.map[0], 0.5)
 
-  def set_angle(angle):
-    
+  def set_angle(self, angle):
+    pos = self.map[angle]
+    self.set_pos(pos, t=0.4)
 
-xcam = MyServo(pin=24, servo_range=[2500, 1400, 700], angles=[-90, 0, +90])
-ycam = MyServo(pin=23, servo_range=[2500, 1600, 700], angles=[-90, 0, +90])
-#cam.reset()
-#cam.set_min()
-#cam.set_max()
+
+MyServo(pin=24, map={-90: 2500, 0: 1400, +90: 700})
+MyServo(pin=23, map={-90: 2500, 0: 1600, +90: 700})
