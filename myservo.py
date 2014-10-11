@@ -39,7 +39,7 @@ class MyServo:
     def set_pos(v, t):
       self.servo.set_servo(pin, v)
       sleep(t)
-      servo.stop_servo(pin)
+      self.servo.stop_servo(pin)
     self.set_pos = set_pos
 
   def reset(self):
