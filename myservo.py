@@ -37,6 +37,7 @@ class MyServo:
     atexit.register(self.reset)
 
     def set_pos(v, t):
+      v = int(v)
       self.servo.set_servo(pin, v)
       sleep(t)
       self.servo.stop_servo(pin)
