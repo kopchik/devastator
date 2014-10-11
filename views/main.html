@@ -40,16 +40,8 @@
         $(function(){
             $('#CamReset').on('click', function(e){
                 e.preventDefault(); // preventing default click action
-                $.ajax({
-                    url: '/cam/reset',
-                    type: 'post',
-                    success: function(){
-                      $("#xpos").slider({value: 0});
-                      $("#ypos").slider({value: 0});
-                    }, error: function(){
-                      alert('ajax failed');
-                    },
-                })
+                $("#xpos").slider({value: 0});
+                $("#ypos").slider({value: 0});
             })
         })
 
