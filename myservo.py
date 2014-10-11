@@ -37,7 +37,7 @@ class MyServo:
     atexit.register(self.reset)
 
     def set_pos(v, t):
-      v = int(v)
+      v = int(v) // 10 * 10  # TODO: round to 10us
       self.servo.set_servo(pin, v)
       sleep(t)
       self.servo.stop_servo(pin)
