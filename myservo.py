@@ -50,6 +50,3 @@ class MyServo:
     pos = self.map[angle]
     self.set_pos(pos, t=0.4)
 
-
-MyServo(pin=24, map={-90: 2500, 0: 1400, +90: 700})
-MyServo(pin=23, map={-90: 2500, 0: 1600, +90: 700})
