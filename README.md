@@ -23,3 +23,23 @@ ln -s /usr/lib/systemd/system/serial-getty@.service \
 
 ### Rng
 Setup as here: https://wiki.archlinux.org/index.php/Raspberry_Pi
+
+
+### Real Time Clock
+in /etc/systemd/system/rtc.service
+~~~
+[Unit]
+Description=RTC clock
+Before=systemd-timesyncd.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo ds1307 0x68 >/sys/bus/i2c/devices/i2c-1/new_device'
+ExecStart=/bin/bash -c 'hwclock --hctosys'
+
+ExecStop=/bin/bash  -c 'hwclock --systohc'
+
+[Install]
+WantedBy=multi-user.target
+~~~
+Then systemctl enable rtc .
