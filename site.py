@@ -3,11 +3,13 @@
 from bottle import abort, run, mount, load_app, default_app as app
 from bottle import static_file, view
 from bottle import get, post, request
+from socket import gethostname
 
-from myservo import MyServo
+if gethostname() == 'alarmpi':
+  from myservo import MyServo
+  xcam = MyServo(pin=24, map={-90: 2500, 0: 1400, +90: 700})
+  ycam = MyServo(pin=23, map={-90: 2500, 0: 1600, +90: 700})
 
-xcam = MyServo(pin=24, map={-90: 2500, 0: 1400, +90: 700})
-ycam = MyServo(pin=23, map={-90: 2500, 0: 1600, +90: 700})
 
 @post('/cam/set')
 def cam():
@@ -30,9 +32,13 @@ def cam():
 def index():
   return {}
 
-@get('/static/<filename:path>')
+@get('/stream/latest')
+  return static_file('/home/sources/stream')
+
+@get('/stream/<filename:path>')
 def server_static(filename):
-    return static_file(filename, root='./static')
+  #return static_file(filename, root='./static')
+  return static_file(filename, root='/home/sources/stream')
 
 
 if __name__ == '__main__':
