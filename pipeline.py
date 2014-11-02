@@ -12,6 +12,7 @@ raspivid -w 800 -h 600 -o - -t 9999999 \
      -f ssegment -segment_time 10 \
      -segment_list {idx} -segment_list_flags live -segment_list_size 10 \
      -loglevel warning \
+     -movflags faststart \
      {out}/%08d.mp4
 """
 #-segment_format_options movflags=+faststart \
@@ -22,7 +23,7 @@ def start():
   pipeline = Popen(cmd, shell=True)
   def cleanup():
     check_call("rm -rf %s/*" % OUTPUT, shell=True)
-  atexit(register(cleanup)
+  atexit.register(cleanup)
   atexit.register(pipeline.terminate)
   return pipeline
 

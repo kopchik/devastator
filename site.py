@@ -37,11 +37,13 @@ def index():
 @get('/stream/latest')
 def latest():
   f = pipeline.get_latest()
-  return static_file(f, '/home/stream')
+  response = static_file(f, '/home/stream')
+  response.set_header("Cache-Control", "no-cache, no-store")
+  return response
 
 @get('/stream/<filename:path>')
 def server_static(filename):
-  return static_file(filename, root='/home/sources/stream')
+  return static_file(filename, root='/home/stream')
 
 
 if __name__ == '__main__':

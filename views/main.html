@@ -19,7 +19,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-    <!-- video.js -->
+    
     <link href="//vjs.zencdn.net/4.10/video-js.css" rel="stylesheet">
     <script src="//vjs.zencdn.net/4.10/video.js"></script>
 
@@ -98,14 +98,21 @@
       }
       });
 
-
     </script>
 
-    <video controls width="320" height="240" class="video-js vjs-default-skin">
+    <video id="video" controls width="320" height="240" class="video-js vjs-default-skin">
           <source src="/stream/latest" type="video/mp4" />
-          <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
-
     </video>
+
+    <script>
+      videojs("video").ready(function(){
+        var myPlayer = this;
+        myPlayer.on("ended", function(){
+          myPlayer.src("/stream/latest");
+          myPlayer.play();
+        })
+      });
+    </script>
 
   </body>
 </html>
