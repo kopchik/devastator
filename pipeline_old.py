@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+""" Deprecated pipeline. Do not use.
+"""
+
 import atexit
 import csv
 from subprocess import Popen, check_call, DEVNULL
@@ -34,3 +37,19 @@ def get_latest():
       pass
   print("the latest segment is", f)
   return f
+
+###################
+# BOTTLE.PY STUFF #
+###################
+
+@get('/stream/latest')
+def latest():
+  f = pipeline.get_latest()
+  response = static_file(f, '/home/stream')
+  response.set_header("Cache-Control", "no-cache, no-store")
+  return response
+
+@get('/stream/<filename:path>')
+def server_static(filename):
+  return static_file(filename, root='/home/stream')
+
