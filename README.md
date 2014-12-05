@@ -43,3 +43,15 @@ ExecStop=/bin/bash  -c 'hwclock --systohc'
 WantedBy=multi-user.target
 ~~~
 Then systemctl enable rtc .
+
+### Cam broadcasting
+
+# crtmpserver
+www.raspberrypi.org/forums/viewtopic.php?t=45368
+wiki.rtmpd.com/quickbuild
+http://pkula.blogspot.co.uk/2013/06/live-video-stream-from-raspberry-pi.html
+
+~~~
+#5-7s delay, bad image quality
+raspivid -w 800 -h 600 -o - -t 9999999 | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8554}' :demux=h264
+~~~

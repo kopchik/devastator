@@ -28,6 +28,11 @@ def cam():
   ycam.reset()
   return
 
+@post('/platform')
+def platform():
+  print(list(request.forms.items()))
+  return
+
 @get('/')
 @view('main')
 def index():
