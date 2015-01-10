@@ -8,12 +8,10 @@ from subprocess import call, check_call
 import atexit
 
 if gethostname() == 'alarmpi':
-  from mymotor import MyMotor
   from myservo import MyServo
 
-  xcam = MyServo(pin=24, map={-90: 2500, 0: 1400, +90: 700})
-  ycam = MyServo(pin=23, map={-90: 2500, 0: 1600, +90: 700})
-  motor = MyMotor(26, 19, 5)
+  xcam = MyServo(pin=13, map={-90: 2500, 0: 1400, +90: 700})
+  ycam = MyServo(pin=5, map={-90: 2500, 0: 1600, +90: 700})
 
 @post('/cam/set')
 def cam():
