@@ -15,6 +15,7 @@ if gethostname() == 'alarmpi':
 
 @post('/cam/set')
 def cam():
+  print(request.json)
   xval = request.forms.get('xvalue')
   if xval:
     xcam.set_angle(int(xval))
@@ -47,4 +48,4 @@ def server_static(filename):
 if __name__ == '__main__':
   #check_call(["./pipeline.sh", "start"])
   #atexit.register(call, ["./pipeline.sh", "stop"])
-  run(debug=False, interval=0.3, host='0.0.0.0', port=8080, reloader=False)
+  run(debug=True, interval=0.3, host='0.0.0.0', port=8080, reloader=False)
