@@ -77,7 +77,7 @@
           this.touch = undefined;
           this.diameter = 100;
           this.timerEvent = undefined;
-          this.updateFreq = 2;  // in Hz
+          this.updateFreq = 5;  // in Hz
           this.value = [0.0, 0.0];
           this.canSend = undefined;
         }
@@ -169,16 +169,18 @@
 
 
         Joystick.prototype.stop = function() {
+          // timer stuff
+          this.canSend = false;
           clearInterval(this.timerEvent);
+
           // TODO: put widgets into separate hierarchy?
           if (this.center) { this.center.remove(); }
           if (this.circle) { this.circle.remove(); }
           if (this.touch)  { this.touch.remove();  }
+
+          this.svg.on("mousemove", null);
           this.pos = undefined;
           this.value = [0.0, 0.0];
-          // immediately notify server that joystick was released
-          this.onTimer(); // TODO: check if it works
-          this.svg.on("mousemove", null);
         }
 
 
