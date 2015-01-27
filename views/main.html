@@ -33,6 +33,31 @@
       , { name: "strobeMediaPlayback" }
       );
     </script>
+    <style>
+.circle {
+  fill: green;
+  fill-opacity: 0.3;
+  stroke: black;
+  stroke-width: 4;
+  stroke-opacity: 0.6;
+}
+
+#controls {
+  width: 320px;
+  height: 240px;
+  border: solid black 1px;
+  background-color: red;
+}
+
+#logWindow {
+  border:solid black 1px;
+  background-color: gray;
+  height: 10em;
+  width: 20em;
+  overflow: scroll;
+  overflow-x: hidden;
+}
+    </style>
     <script>
         "use strict";
 
@@ -74,14 +99,10 @@
 
           // TODO: move properties to CSS
           this.circle = this.svg.append("circle")
+            .attr("class", "circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
             .attr("r", this.diameter)
-            .attr("fill", "green")
-            .attr("fill-opacity", 0.3)
-            .attr("stroke", "black")
-            .attr("stroke-width", 4)
-            .attr("stroke-opacity", 0.6)
           ;
 
           this.touch = this.svg.append("circle")
@@ -114,7 +135,6 @@
             .post(JSON.stringify(joystick.value), function(err, resp) {
               if (err) {
                 log.info("request error: " + err.status + " " + err.statusText);
-                // TODO: call this.stop()
                 joystick.stop()
                 return
               }
@@ -191,8 +211,8 @@
     </div>
     <br>
  -->
-    <svg id="controls" width="320" height="240" style="border:solid black 1px; background-color: red;">
-    </svg>
-   <div id="logWindow" style="border:solid black 1px; background-color: grey; height: 10em; width: 20em; overflow: scroll; overflow-x: hidden;"></div>
+    <svg id="controls"></svg>
+    <br>
+   <div id="logWindow"></div>
   </body>
 </html>
