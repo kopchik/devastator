@@ -6,6 +6,7 @@ from operator import itemgetter
 from bisect import bisect_left
 from threading import Thread
 from sys import exit
+import time
 import atexit
 import select
 import os
@@ -43,7 +44,8 @@ class Timer(Thread):
 
   def run(self):
     while True:
-      ready_fds = select.select([self.read_fd], [], [], self.timeout)
+      ready_fds = select.select([self.read_fd], [], [],
+                                self.timeout)
       print(ready_fds[0])
       if self.read_fd in ready_fds[0]:
         mode = os.read(self.read_fd, 1)
@@ -75,6 +77,9 @@ class MyServo:
     v = int(v) // 10 * 10  # TODO: round to 10us
     self.servo.set_servo(self.pin, v)
     self.timer.reset()
+    # TODO: limit command rate because charger
+    # cannot give enough power for two servos
+    time.sleep(0.3)
 
   def stop(self):
     self.servo.stop_servo(self.pin)
