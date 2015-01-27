@@ -7,6 +7,8 @@ from bisect import bisect_left
 from threading import Thread
 from sys import exit
 import atexit
+import select
+import os
 
 
 class Interpolate:
@@ -26,6 +28,7 @@ class Interpolate:
 
 class Timer(Thread):
   def __init__(self, cb, timeout):
+    super().__init__()
     self.cb = cb
     self.timeout = timeout
     read_fd, write_fd = os.pipe()
@@ -38,14 +41,17 @@ class Timer(Thread):
   def cancel(self):
     os.write(self.write_fd, b'c')
 
-  def schedule(self):
+  def run(self):
     while True:
-      ready_fds = select.select([self.read],[],[], self.timeout)
-      if self.read in ready_fds:
+      ready_fds = select.select([self.read_fd], [], [], self.timeout)
+      print(ready_fds[0])
+      if self.read_fd in ready_fds[0]:
         mode = os.read(self.read_fd, 1)
         if mode == b'r':
+          print("timer was reset")
           continue
         elif mode == b'c':
+          print("timer canceled")
           break
         else:
           raise Exception("unknown mode %s" % mode)
@@ -63,10 +69,14 @@ class MyServo:
     self.servo = PWM.Servo()
     self.pin = pin
     atexit.register(self.reset)
+    self.timer = Timer(self.stop, 1)
 
   def _set(self, v):
     v = int(v) // 10 * 10  # TODO: round to 10us
     self.servo.set_servo(self.pin, v)
+    self.timer.reset()
+
+  def stop(self):
     self.servo.stop_servo(self.pin)
 
   def reset(self):
