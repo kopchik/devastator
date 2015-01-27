@@ -29,7 +29,7 @@ class Interpolate:
 
 class Timer(Thread):
   def __init__(self, cb, timeout):
-    super().__init__()
+    super().__init__(daemon=True)
     self.cb = cb
     self.timeout = timeout
     read_fd, write_fd = os.pipe()
@@ -57,7 +57,10 @@ class Timer(Thread):
           break
         else:
           raise Exception("unknown mode %s" % mode)
-      self.cb()
+      try:
+        self.cb()
+      except Exception as err:
+        print("error from cb (ignored): %s" % err)
 
 
 class MyServo:
@@ -71,7 +74,9 @@ class MyServo:
     self.servo = PWM.Servo()
     self.pin = pin
     atexit.register(self.reset)
-    self.timer = Timer(self.stop, 1)
+    atexit.register(self.stop)
+    self.timer = Timer(self.stop, 5)
+    self.timer.start()
 
   def _set(self, v):
     v = int(v) // 10 * 10  # TODO: round to 10us

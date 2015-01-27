@@ -18,6 +18,7 @@ if gethostname() == 'alarmpi':
 @post('/cam/set')
 def cam():
   x,y = request.json
+  print("set position to", x, y)
   if gethostname() != 'alarmpi':
     return
   xcam.set(x)
