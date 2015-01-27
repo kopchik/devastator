@@ -4,7 +4,7 @@ from RPIO import PWM
 
 from operator import itemgetter
 from bisect import bisect_left
-from time import sleep
+from threading import Thread
 from sys import exit
 import atexit
 
@@ -24,7 +24,7 @@ class Interpolate:
     return self.Y[i] + self.slopes[i] * (x - self.X[i])
 
 
-class Timer:
+class Timer(Thread):
   def __init__(self, cb, timeout):
     self.cb = cb
     self.timeout = timeout
@@ -66,9 +66,8 @@ class MyServo:
 
   def _set(self, v):
     v = int(v) // 10 * 10  # TODO: round to 10us
-    self.servo.set_servo(pin, v)
-    sleep(1)  # TODO
-    self.servo.stop_servo(pin)
+    self.servo.set_servo(self.pin, v)
+    self.servo.stop_servo(self.pin)
 
   def reset(self):
     self._set(self.map[0])
