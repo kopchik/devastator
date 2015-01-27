@@ -79,7 +79,7 @@ class MyServo:
     self.timer.reset()
     # TODO: limit command rate because charger
     # cannot give enough power for two servos
-    time.sleep(0.3)
+    #time.sleep(0.3)
 
   def stop(self):
     self.servo.stop_servo(self.pin)
