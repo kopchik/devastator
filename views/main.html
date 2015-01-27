@@ -38,7 +38,9 @@
 
         var log = {
           info: function(msg) {
-            d3.select("#logWindow").append("div").text(msg);
+            d3.select("#logWindow")
+            .insert("div", "*")
+            .text(msg);
           }
         }
 
@@ -49,18 +51,27 @@
           this.circle = undefined;
           this.touch = undefined;
           this.diameter = 100;
+          this.timer = undefined;
+          this.value = [0.0, 0.0];
+          this.canSend = undefined;
         }
 
         Joystick.prototype.constructor = Joystick;
+        Joystick.prototype.constructor.prototype.toString = function() {
+          return "Joystick";
+        }
 
         Joystick.prototype.start = function(pos) {
+          this.stop();  // reset everything;
           this.pos = pos;
+          this.canSend = true;
           this.center = this.svg.append("circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
             .attr("r", 2)
           ;
 
+          // TODO: move properties to CSS
           this.circle = this.svg.append("circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
@@ -83,29 +94,63 @@
           this.svg.on("mousemove", function() {
             joystick.update(d3.mouse(this))
           });
+
+          this.timer = setInterval(this.onTimer.bind(this), 1000);
+        }
+
+
+        // TODO: rename to sendUpdate
+        Joystick.prototype.onTimer = function() {
+          log.info("timer fired");
+          if (!this.canSend) {
+            return;
+          }
+          this.canSend = false;
+          var joystick = this
+          d3.xhr("/cam/set")
+            .header("Content-Type", "application/json")
+            .post(JSON.stringify(joystick.value), function(err, resp) {
+              if (err) {
+                log.info("request error: " + err.status + " " + err.statusText);
+                // TODO: call this.stop()
+                joystick.stop()
+                return
+              }
+              joystick.canSend = true;
+              log.info("got control response: " + resp);
+            });
         }
 
 
         Joystick.prototype.update = function(pos) {
-          var dx = this.pos[0] - pos[0];
-          var dy = this.pos[1] - pos[1];
+          var dx = pos[0] - this.pos[0];
+          var dy = pos[1] - this.pos[1];
           var r = Math.sqrt(dx*dx + dy*dy);
           if (r > this.diameter) {
             var factor = r / this.diameter;
             dx = dx / factor;
             dy = dy / factor;
           }
+
+          this.value = [dx/r, -dy/r];  // '-' because we invert Y axis
+
           this.touch
-            .attr("cx", this.pos[0] - dx)
-            .attr("cy", this.pos[1] - dy)
+            .attr("cx", this.pos[0] + dx)
+            .attr("cy", this.pos[1] + dy)
           ;
         }
 
 
         Joystick.prototype.stop = function() {
-          this.center.remove();
-          this.circle.remove();
-          this.touch.remove();
+          clearInterval(this.timer);
+          // TODO: put widgets into separate hierarchy?
+          if (this.center) { this.center.remove(); }
+          if (this.circle) { this.circle.remove(); }
+          if (this.touch)  { this.touch.remove();  }
+          this.pos = undefined;
+          this.value = [0.0, 0.0];
+          // immediately notify server that joystick was released
+          this.onTimer(); // TODO: check if it works
           this.svg.on("mousemove", null);
         }
 
@@ -117,9 +162,13 @@
           var joystick = new Joystick(svg);
           svg
             .on("mousedown", function() {
+              d3.event.preventDefault();
               joystick.start(d3.mouse(this));
             })
             .on("mouseup", function() {
+              joystick.stop();
+            })
+            .on("mouseleave", function() {
               joystick.stop();
             })
           ;
@@ -128,16 +177,20 @@
   </head>
 
   <body>
+<!--
     <div class="page-header">
       <h1>Devastator 2.0 <small>Exterminate! Exterminate!</small></h1>
     </div>
-    <button id="CamReset" type="button" class="btn btn-default">Reset cam position</button>
-<!--     <div id="strobeMediaPlayback">
+    <button id="CamReset" type="button" class="btn btn-default">
+      Reset cam position
+    </button>
+    <div id="strobeMediaPlayback">
       <p>Here supposed to be a video player. Flash blocked or not supported?</p>
     </div>
- -->    <br>
+    <br>
+ -->
     <svg id="controls" width="320" height="240" style="border:solid black 1px; background-color: red;">
     </svg>
-   <div id="logWindow" style="border:solid black 1px; background-color: grey; height: 10em; width: 20em;"></div>
+   <div id="logWindow" style="border:solid black 1px; background-color: grey; height: 10em; width: 20em; overflow: scroll; overflow-x: hidden;"></div>
   </body>
 </html>

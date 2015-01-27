@@ -17,6 +17,7 @@ if gethostname() == 'alarmpi':
 
 @post('/cam/set')
 def cam():
+  print(request.json)
   xval = request.forms.get('xvalue')
   if xval:
     xcam.set_angle(int(xval))
