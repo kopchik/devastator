@@ -64,16 +64,16 @@ class MyServo:
     self.pin = pin
     atexit.register(self.reset)
 
-    def _set(v, t):
-      v = int(v) // 10 * 10  # TODO: round to 10us
-      self.servo.set_servo(pin, v)
-      sleep(1)  # TODO
-      self.servo.stop_servo(pin)
+  def _set(self, v):
+    v = int(v) // 10 * 10  # TODO: round to 10us
+    self.servo.set_servo(pin, v)
+    sleep(1)  # TODO
+    self.servo.stop_servo(pin)
 
   def reset(self):
     self._set(self.map[0])
 
-  def set(self, angle):
-    pos = self.map[angle]
+  def set(self, value):
+    pos = self.map[value]
     self._set(pos)
 
