@@ -51,7 +51,8 @@
           this.circle = undefined;
           this.touch = undefined;
           this.diameter = 100;
-          this.timer = undefined;
+          this.timerEvent = undefined;
+          this.updateFreq = 5;  // timee per second
           this.value = [0.0, 0.0];
           this.canSend = undefined;
         }
@@ -95,7 +96,8 @@
             joystick.update(d3.mouse(this))
           });
 
-          this.timer = setInterval(this.onTimer.bind(this), 1000);
+          this.timerEvent = setInterval(this.onTimer.bind(this),
+                                        1.0/this.updateFreq*1000);
         }
 
 
@@ -142,7 +144,7 @@
 
 
         Joystick.prototype.stop = function() {
-          clearInterval(this.timer);
+          clearInterval(this.timerEvent);
           // TODO: put widgets into separate hierarchy?
           if (this.center) { this.center.remove(); }
           if (this.circle) { this.circle.remove(); }
