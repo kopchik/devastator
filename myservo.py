@@ -24,6 +24,34 @@ class Interpolate:
     return self.Y[i] + self.slopes[i] * (x - self.X[i])
 
 
+class Timer:
+  def __init__(self, cb, timeout):
+    self.cb = cb
+    self.timeout = timeout
+    read_fd, write_fd = os.pipe()
+    self.read_fd = read_fd
+    self.write_fd = write_fd
+
+  def reset(self):
+    os.write(self.write_fd, b'r')
+
+  def cancel(self):
+    os.write(self.write_fd, b'c')
+
+  def schedule(self):
+    while True:
+      ready_fds = select.select([self.read],[],[], self.timeout)
+      if self.read in ready_fds:
+        mode = os.read(self.read_fd, 1)
+        if mode == b'r':
+          continue
+        elif mode == b'c':
+          break
+        else:
+          raise Exception("unknown mode %s" % mode)
+      self.cb()
+
+
 class MyServo:
   def __init__(self, pin, map):
     X, Y = [], []
@@ -36,17 +64,16 @@ class MyServo:
     self.pin = pin
     atexit.register(self.reset)
 
-    def set_pos(v, t):
+    def _set(v, t):
       v = int(v) // 10 * 10  # TODO: round to 10us
       self.servo.set_servo(pin, v)
-      sleep(t)
+      sleep(1)  # TODO
       self.servo.stop_servo(pin)
-    self.set_pos = set_pos
 
   def reset(self):
-    self.set_pos(self.map[0], 0.5)
+    self._set(self.map[0])
 
-  def set_angle(self, angle):
+  def set(self, angle):
     pos = self.map[angle]
-    self.set_pos(pos, t=0.8)
+    self._set(pos)
 

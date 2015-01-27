@@ -7,40 +7,26 @@ from socket import gethostname
 from subprocess import call, check_call
 import atexit
 
+DEBUG = True
 if gethostname() == 'alarmpi':
-  from mymotor import MyMotor
   from myservo import MyServo
+  xcam = MyServo(pin=21, map={-1: 2500, 0: 1400, +1: 700})
+  ycam = MyServo(pin=26, map={-1: 2500, 0: 1600, +1: 700})
+  DEBUG = False  # rpi may hang during reload
 
-  xcam = MyServo(pin=24, map={-90: 2500, 0: 1400, +90: 700})
-  ycam = MyServo(pin=23, map={-90: 2500, 0: 1600, +90: 700})
-  motor = MyMotor(26, 19, 5)
 
 @post('/cam/set')
 def cam():
-  print(request.json)
-  xval = request.forms.get('xvalue')
-  if xval:
-    xcam.set_angle(int(xval))
-  yval = request.forms.get('yvalue')
-  if yval:
-    ycam.set_angle(int(yval))
-  return
+  x,y = request.json
+  xcam.set(x)
+  ycam.set(x)
 
-@post('/cam/reset')
-def cam():
-  xcam.reset()
-  ycam.reset()
-  return
-
-@post('/platform')
-def platform():
-  print(list(request.forms.items()))
-  return
 
 @get('/')
 @view('main')
 def index():
   return {}
+
 
 @get('/static/<filename:path>')
 def server_static(filename):
@@ -50,4 +36,4 @@ def server_static(filename):
 if __name__ == '__main__':
   #check_call(["./pipeline.sh", "start"])
   #atexit.register(call, ["./pipeline.sh", "stop"])
-  run(debug=True, interval=0.3, host='0.0.0.0', port=8080, reloader=False)
+  run(debug=DEBUG, interval=0.3, host='0.0.0.0', port=8080, reloader=DEBUG)
