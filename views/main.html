@@ -7,10 +7,6 @@
     <!-- JQUERY -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
-    <!-- JQUERY UI -->
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-
     <!-- BOOTSTRAP -->
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -19,10 +15,9 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-    <script>
-      $(function() {$( "#slider" ).slider();});
-    </script>
     <script src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script type="text/javascript">
       var parameters = { src: "rtmp://" + window.location.hostname + "/rtmp/live" };
 
@@ -38,81 +33,111 @@
       , { name: "strobeMediaPlayback" }
       );
     </script>
+    <script>
+        "use strict";
+
+        var log = {
+          info: function(msg) {
+            d3.select("#logWindow").append("div").text(msg);
+          }
+        }
+
+        function Joystick(svg) {
+          this.svg = svg;
+          this.pos = undefined;
+          this.center = undefined;
+          this.circle = undefined;
+          this.touch = undefined;
+          this.diameter = 100;
+        }
+
+        Joystick.prototype.constructor = Joystick;
+
+        Joystick.prototype.start = function(pos) {
+          this.pos = pos;
+          this.center = this.svg.append("circle")
+            .attr("cx", pos[0])
+            .attr("cy", pos[1])
+            .attr("r", 2)
+          ;
+
+          this.circle = this.svg.append("circle")
+            .attr("cx", pos[0])
+            .attr("cy", pos[1])
+            .attr("r", this.diameter)
+            .attr("fill", "green")
+            .attr("fill-opacity", 0.3)
+            .attr("stroke", "black")
+            .attr("stroke-width", 4)
+            .attr("stroke-opacity", 0.6)
+          ;
+
+          this.touch = this.svg.append("circle")
+            .attr("cx", pos[0])
+            .attr("cy", pos[1])
+            .attr("r", 5)
+          ;
+
+
+          var joystick = this
+          this.svg.on("mousemove", function() {
+            joystick.update(d3.mouse(this))
+          });
+        }
+
+
+        Joystick.prototype.update = function(pos) {
+          var dx = this.pos[0] - pos[0];
+          var dy = this.pos[1] - pos[1];
+          var r = Math.sqrt(dx*dx + dy*dy);
+          if (r > this.diameter) {
+            var factor = r / this.diameter;
+            dx = dx / factor;
+            dy = dy / factor;
+          }
+          this.touch
+            .attr("cx", this.pos[0] - dx)
+            .attr("cy", this.pos[1] - dy)
+          ;
+        }
+
+
+        Joystick.prototype.stop = function() {
+          this.center.remove();
+          this.circle.remove();
+          this.touch.remove();
+          this.svg.on("mousemove", null);
+        }
+
+
+
+        $(function() {
+          log.info("started!");
+          var svg = d3.select("#controls");
+          var joystick = new Joystick(svg);
+          svg
+            .on("mousedown", function() {
+              joystick.start(d3.mouse(this));
+            })
+            .on("mouseup", function() {
+              joystick.stop();
+            })
+          ;
+        })
+    </script>
   </head>
 
   <body>
-
     <div class="page-header">
       <h1>Devastator 2.0 <small>Exterminate! Exterminate!</small></h1>
     </div>
-
     <button id="CamReset" type="button" class="btn btn-default">Reset cam position</button>
-    <div id="xpos"></div>
-    <div id="ypos"></div>
-
-
-    <script>
-        $(function(){
-            $('#CamReset').on('click', function(e){
-                e.preventDefault(); // preventing default click action
-                $("#xpos").slider({value: 0});
-                $("#ypos").slider({value: 0});
-            })
-        })
-
-      // X SLIDER
-      $(function () {
-        $("#xpos").slider({
-            min: -90, max: +90,
-            slide: function (event, ui) {
-                $("input#slider_value").val(ui.value);
-            }
-        });
-      });
-
-      $("#xpos").slider({
-        change: function(event, ui) {
-          $.ajax({
-              url: '/cam/set',
-              type: 'POST',
-              data: {'xvalue': ui.value},
-              success: function(){
-                  // ajax callback
-              }, error: function(){
-                  alert('ajax failed');
-              },
-          })
-      }
-      });
-
-      // Y SLIDER
-      $(function () {
-        $("#ypos").slider({
-            min: -90, max: +90, orientation: "vertical",
-            slide: function (event, ui) {
-                $("input#slider_value").val(ui.value);
-            }
-        });
-      });
-
-      $("#ypos").slider({
-        change: function(event, ui) {
-          $.ajax({
-              url: '/cam/set',
-              type: 'POST',
-              data: {'yvalue': ui.value},
-              success: function(){
-                  // ajax callback
-              }, error: function(){
-                  alert('ajax failed');
-              },
-          })
-      }
-      });
-    </script>
-
-       <div id="strobeMediaPlayback">
-          <p>Here supposed to be a video player. Flash blocked or not supported?</p>
-       </div>
+<!--     <div id="strobeMediaPlayback">
+      <p>Here supposed to be a video player. Flash blocked or not supported?</p>
+    </div>
+ -->    <br>
+    <svg id="controls" width="320" height="240" style="border:solid black 1px; background-color: red;">
+    </svg>
+   <div id="logWindow" style="border:solid black 1px; background-color: grey; height: 10em; width: 20em;"></div>
   </body>
 </html>
