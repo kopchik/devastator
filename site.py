@@ -22,7 +22,7 @@ def cam():
   if gethostname() != 'alarmpi':
     return
   xcam.set(x)
-  ycam.set(x)
+  ycam.set(y)
 
 
 @get('/')
