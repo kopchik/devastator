@@ -87,6 +87,7 @@
           return "Joystick";
         }
 
+
         Joystick.prototype.start = function(pos) {
           this.stop();  // reset everything;
           this.pos = pos;
@@ -124,15 +125,18 @@
 
         // TODO: rename to sendUpdate
         Joystick.prototype.onTimer = function() {
-          log.info("timer fired");
           if (!this.canSend) {
+            log.info("previous message not ACKed, throttling timer")
             return;
           }
+          log.info("timer fired");
           this.canSend = false;
           var joystick = this
+          var data = JSON.stringify(joystick.value)
+          log.info("sending " + data)
           d3.xhr("/cam/set")
             .header("Content-Type", "application/json")
-            .post(JSON.stringify(joystick.value), function(err, resp) {
+            .post(data, function(err, resp) {
               if (err) {
                 log.info("request error: " + err.status + " " + err.statusText);
                 joystick.stop()
@@ -154,7 +158,8 @@
             dy = dy / factor;
           }
 
-          this.value = [dx/r, -dy/r];  // '-' because we invert Y axis
+          // '-' because we invert Y axis
+          this.value = [dx/this.diameter, -dy/this.diameter];
 
           this.touch
             .attr("cx", this.pos[0] + dx)
