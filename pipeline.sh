@@ -1,5 +1,9 @@
 #!/bin/bash
-NGINX="/home/sources/nginx-1.7.7/objs/nginx -c `pwd`/nginx.conf"
+# How to build nginx:
+# ./configure --add-module=/home/sources/nginx-rtmp-module --with-ipv6
+# make -j2; make install
+
+NGINX="/home/sources/nginx-1.7.9/objs/nginx -c `pwd`/nginx.conf"
 UPSTREAM="rtmp://localhost/rtmp/live"
 case  $1  in
   start)
