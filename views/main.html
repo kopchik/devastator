@@ -51,17 +51,24 @@ different results on chromium and firefox.
 }
 
 #controls {
-  width: 640px;
-  height: 480px;
+  /*width: 640px;*/
+  width: 90%;
+  height: 320px;
   border: solid black 1px;
-  background-color: red;
+  background-color: #B9C8B9;
+  /*display:inline;*/
+}
+#body {
+  text-align: center;
 }
 
 #logWindow {
+  display:inline-block;
   border:solid black 1px;
-  background-color: gray;
+  background-color: #CCFFFF;
   height: 15em;
-  width: 20em;
+  width: 90%;
+  text-align: left;
   overflow: scroll;
   overflow-x: hidden;
 }
@@ -86,7 +93,7 @@ different results on chromium and firefox.
           this.widget = {
             center: undefined,
             circle: undefined,
-            pointer: undefined, // rename to touch
+            pointer: undefined,
           }
           this.timerEvent = undefined;
           this.updateFreq = 5;  // in Hz
@@ -300,7 +307,7 @@ different results on chromium and firefox.
     </script>
   </head>
 
-  <body>
+  <body id="body">
 <!--
     <div class="page-header">
       <h1>Devastator 2.0 <small>Exterminate! Exterminate!</small></h1>
@@ -314,7 +321,6 @@ different results on chromium and firefox.
     <br>
  -->
     <svg id="controls"></svg>
-    <br>
-   <div id="logWindow"></div>
+    <div id="logWindow"></div>
   </body>
 </html>
