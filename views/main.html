@@ -35,16 +35,16 @@
     </script>
     <style>
 .circle {
-  fill: green;
-  fill-opacity: 0.3;
+  /*fill: green;*/
+  /*fill-opacity: 0.5;*/
   stroke: black;
   stroke-width: 4;
-  stroke-opacity: 0.6;
+  /*stroke-opacity: 0.6;*/
 }
 
 #controls {
-  width: 320px;
-  height: 240px;
+  width: 640px;
+  height: 480px;
   border: solid black 1px;
   background-color: red;
 }
@@ -52,7 +52,7 @@
 #logWindow {
   border:solid black 1px;
   background-color: gray;
-  height: 10em;
+  height: 15em;
   width: 20em;
   overflow: scroll;
   overflow-x: hidden;
@@ -69,12 +69,14 @@
           }
         }
 
-        function Joystick(svg) {
+        function Joystick(svg, id, color) {
           this.svg = svg;
+          this.id = id;
+          this.color = color;
           this.pos = undefined;
           this.center = undefined;
           this.circle = undefined;
-          this.touch = undefined;
+          this.pointer = undefined;
           this.diameter = 100;
           this.timerEvent = undefined;
           this.updateFreq = 5;  // in Hz
@@ -98,28 +100,28 @@
             .attr("r", 2)
           ;
 
-          // TODO: move properties to CSS
           this.circle = this.svg.append("circle")
             .attr("class", "circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
             .attr("r", this.diameter)
+            .style("fill", this.color)
           ;
 
-          this.touch = this.svg.append("circle")
+          this.pointer = this.svg.append("circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
-            .attr("r", 5)
+            .attr("r", 40)
           ;
 
 
-          var joystick = this
-          this.svg.on("mousemove", function() {
-            joystick.update(d3.mouse(this))
-          });
+          // var joystick = this
+          // this.svg.on("mousemove", function() {
+          //   joystick.move(d3.mouse(this))
+          // });
 
-          this.timerEvent = setInterval(this.onTimer.bind(this),
-                                        1.0/this.updateFreq*1000);
+          // this.timerEvent = setInterval(this.onTimer.bind(this),
+          //                               1.0/this.updateFreq*1000);
         }
 
 
@@ -148,7 +150,7 @@
         }
 
 
-        Joystick.prototype.update = function(pos) {
+        Joystick.prototype.move = function(pos) {
           var dx = pos[0] - this.pos[0];
           var dy = pos[1] - this.pos[1];
           var r = Math.sqrt(dx*dx + dy*dy);
@@ -161,7 +163,7 @@
           // '-' because we invert Y axis
           this.value = [dx/this.diameter, -dy/this.diameter];
 
-          this.touch
+          this.pointer
             .attr("cx", this.pos[0] + dx)
             .attr("cy", this.pos[1] + dy)
           ;
@@ -176,9 +178,8 @@
           // TODO: put widgets into separate hierarchy?
           if (this.center) { this.center.remove(); }
           if (this.circle) { this.circle.remove(); }
-          if (this.touch)  { this.touch.remove();  }
+          if (this.pointer)  { this.pointer.remove();  }
 
-          this.svg.on("mousemove", null);
           this.pos = undefined;
           this.value = [0.0, 0.0];
         }
@@ -188,17 +189,94 @@
         $(function() {
           log.info("started!");
           var svg = d3.select("#controls");
-          var joystick = new Joystick(svg);
+          var svgwidth = parseInt(svg.style("width"));
+
+          var mousestick;
+          var sticks = {
+            move: new Joystick(svg, "move", "green"),
+            look: new Joystick(svg, "look", "white")
+          }
+          var stickmap = {}
+
+          function apply(meth) {
+            d3.event.preventDefault();
+            d3.touches(this).forEach(function(touch) {
+              // log.info("action:" + meth + " " + touch.identifier);
+              stickmap[touch.identifier][meth](touch);
+            })
+          }
+
+          function selectstick(pos) {
+            var stick;
+            if (pos[0] < svgwidth / 2) {
+              stick = sticks.move;
+            } else {
+              stick = sticks.look;
+            }
+            return stick;
+          }
+
           svg
             .on("mousedown", function() {
               d3.event.preventDefault();
-              joystick.start(d3.mouse(this));
+              var pos = d3.mouse(this);
+              mousestick = selectstick(pos);
+              mousestick.start(pos);
             })
+            .on("mousemove", function() {
+              if (mousestick) {
+                mousestick.move(d3.mouse(this));
+              }
+            })
+
             .on("mouseup", function() {
-              joystick.stop();
+              if (mousestick) {
+                mousestick.stop();
+                mousestick = undefined;
+              }
             })
+            // TODO: duplicate methods
             .on("mouseleave", function() {
-              joystick.stop();
+              if (mousestick) {
+                log.info("mouse leave");
+                mousestick.stop();
+                mousestick = undefined;
+              }
+            })
+
+            .on("touchstart", function() {
+              d3.event.preventDefault();
+              d3.touches(this).forEach(function(touch) {
+                var stick;
+                if (touch[0] < svgwidth / 2) {
+                  stick = sticks.move;
+                } else {
+                  stick = sticks.look;
+                }
+                stick.start(touch);
+                stickmap[touch.identifier] = stick;
+              })
+            })
+            .on("touchmove", function() {
+              apply.apply(this, ["move"]);
+            })
+            .on("touchcancel", function() {
+              apply.apply(this, ["stop"]);
+            })
+            .on("touchleave", function() {
+              apply.apply(this, ["stop"]);
+            })
+            .on("touchend", function() {
+              d3.event.preventDefault();
+              var active = [];
+              d3.touches(this).forEach(function(touch) {
+                active.push(touch.identifier);
+              });
+              $.each(stickmap,function(key, value) {
+                if (active.indexOf(parseInt(key)) == -1) {
+                  value.stop();
+                }
+              });
             })
           ;
         })
