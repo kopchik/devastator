@@ -42,17 +42,14 @@ function Joystick(svg, id, color) {
   this.svg = svg;
   this.id = id;
   this.color = color;
-  this.pos = undefined;
-  this.diameter = 100;
+  this.pos = undefined;  // TODO: move to widget namespace
+  this.diameter = 100;   // TODO: move to widget namespace
   this.widget = {
     center: undefined,
     circle: undefined,
     pointer: undefined,
   }
-  this.timerEvent = undefined;
-  this.updateFreq = 5;  // in Hz
   this.value = [0.0, 0.0];
-  this.canSend = undefined;
 }
 
 Joystick.prototype.constructor = Joystick;
@@ -64,7 +61,6 @@ Joystick.prototype.constructor.prototype.toString = function() {
 Joystick.prototype.start = function(pos) {
   this.stop();  // reset everything;
   this.pos = pos;
-  this.canSend = true;
 
   var widget = this.widget;
   widget.center = this.svg.append("circle")
@@ -86,15 +82,6 @@ Joystick.prototype.start = function(pos) {
     .attr("cy", pos[1])
     .attr("r", 40)
   ;
-
-
-  // var joystick = this
-  // this.svg.on("mousemove", function() {
-  //   joystick.move(d3.mouse(this))
-  // });
-
-  // this.timerEvent = setInterval(this.onTimer.bind(this),
-  //                               1.0/this.updateFreq*1000);
 }
 
 
@@ -144,11 +131,7 @@ Joystick.prototype.move = function(pos) {
 
 
 Joystick.prototype.stop = function() {
-  // timer stuff
-  this.canSend = false;
-  clearInterval(this.timerEvent);
   var widget = this.widget;
-  // TODO: put widgets into separate hierarchy?
   if (widget.center)  { widget.center.remove();  }
   if (widget.circle)  { widget.circle.remove();  }
   if (widget.pointer) { widget.pointer.remove(); }
@@ -157,6 +140,21 @@ Joystick.prototype.stop = function() {
   this.value = [0.0, 0.0];
 }
 
+var timer = {
+  cb: undefined,
+  timerEvent: undefined,
+  updateFreq: 3.0,
+  start: function() {
+    if (this.timerEvent) { return; }
+    this.timerEvent = setInterval(this.cb,
+                                  1.0/this.updateFreq*1000);
+  },
+  stop: function() {
+    if (!this.timerEvent) { return; }
+    clearInterval(this.timerEvent);
+    this.timerEvent = undefined;
+  }
+}
 
 
 $(function() {
@@ -170,6 +168,33 @@ $(function() {
     look: new Joystick(svg, "look", "white")
   }
   var stickmap = d3.map()
+
+  var guard = true;  // throttle server if it is slow to respond
+  function timercb() {
+    if (!guard) {
+      log.info("server hasn't respond to the previous message, throttling");
+      return;
+    }
+    guard = false;
+    var data = d3.map();
+    stickmap.forEach(function(key, value) {
+      data.set(value.id, value.value);
+      // data.push({id: value.id, value: value.value})
+    });
+    log.info("DATA " + data);
+    var json = JSON.stringify(data['_']);  // TODO: dirty hack
+    d3.xhr("/cam/set")
+    .header("Content-Type", "application/json")
+    .post(json, function(err, resp) {
+      if (err) {
+        log.info("request error: " + err.status + " " + err.statusText);
+        return
+      }
+      guard = true;
+      // log.info("got control response: " + resp);
+    });
+  }
+  timer.cb = timercb;
 
   function apply(meth) {
     d3.event.preventDefault();
@@ -201,7 +226,6 @@ $(function() {
         mousestick.move(d3.mouse(this));
       }
     })
-
     .on("mouseup", function() {
       if (mousestick) {
         mousestick.stop();
@@ -228,6 +252,7 @@ $(function() {
         }
         stick.start(touch);
         stickmap.set(touch.identifier, stick);
+        timer.start();
       })
     })
     .on("touchmove", function() {
@@ -241,8 +266,7 @@ $(function() {
     })
     .on("touchend", function() {
       d3.event.preventDefault();
-      var active = [];
-      log.info("touch() " + d3.touch(this))
+      var active = [];  // touches ids that still active
       d3.touches(this).forEach(function(touch) {
         active.push(touch.identifier);
       });
@@ -254,6 +278,7 @@ $(function() {
       });
       if (stickmap.empty()) {
         log.info("no touches left");
+        timer.stop();
       }
     })
   ;
