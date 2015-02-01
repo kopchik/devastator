@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<!--
+TODO
+* Out-of-band POST if settings changed too quickly
+* Immidiately notify if all touches ended
+* Make it working on firefox: touchend d3.touches returns
+different results on chromium and firefox.
+ -->
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -196,13 +204,13 @@
             move: new Joystick(svg, "move", "green"),
             look: new Joystick(svg, "look", "white")
           }
-          var stickmap = {}
+          var stickmap = d3.map()
 
           function apply(meth) {
             d3.event.preventDefault();
             d3.touches(this).forEach(function(touch) {
               // log.info("action:" + meth + " " + touch.identifier);
-              stickmap[touch.identifier][meth](touch);
+              stickmap.get(touch.identifier)[meth](touch);
             })
           }
 
@@ -254,7 +262,7 @@
                   stick = sticks.look;
                 }
                 stick.start(touch);
-                stickmap[touch.identifier] = stick;
+                stickmap.set(touch.identifier, stick);
               })
             })
             .on("touchmove", function() {
@@ -269,14 +277,19 @@
             .on("touchend", function() {
               d3.event.preventDefault();
               var active = [];
+              log.info("touch() " + d3.touch(this))
               d3.touches(this).forEach(function(touch) {
                 active.push(touch.identifier);
               });
-              $.each(stickmap,function(key, value) {
+              stickmap.forEach(function(key, value) {
                 if (active.indexOf(parseInt(key)) == -1) {
                   value.stop();
+                  stickmap.remove(key);
                 }
               });
+              if (stickmap.empty()) {
+                log.info("no touches left");
+              }
             })
           ;
         })
