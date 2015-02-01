@@ -143,7 +143,7 @@ Joystick.prototype.stop = function() {
 var timer = {
   cb: undefined,
   timerEvent: undefined,
-  updateFreq: 3.0,
+  updateFreq: 20.0,
   start: function() {
     if (this.timerEvent) { return; }
     this.timerEvent = setInterval(this.cb,
