@@ -1,0 +1,30 @@
+.circle {
+  /*fill: green;*/
+  /*fill-opacity: 0.5;*/
+  stroke: black;
+  stroke-width: 4;
+  /*stroke-opacity: 0.6;*/
+}
+
+#controls {
+  /*width: 640px;*/
+  width: 90%;
+  height: 320px;
+  border: solid black 1px;
+  background-color: #B9C8B9;
+  /*display:inline;*/
+}
+#body {
+  text-align: center;
+}
+
+#logWindow {
+  display:inline-block;
+  border:solid black 1px;
+  background-color: #CCFFFF;
+  height: 15em;
+  width: 90%;
+  text-align: left;
+  overflow: scroll;
+  overflow-x: hidden;
+}

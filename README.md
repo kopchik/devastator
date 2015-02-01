@@ -55,3 +55,12 @@ http://pkula.blogspot.co.uk/2013/06/live-video-stream-from-raspberry-pi.html
 #5-7s delay, bad image quality
 raspivid -w 800 -h 600 -o - -t 9999999 | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8554}' :demux=h264
 ~~~
+
+
+## TODO
+
+1. Out-of-band POST if settings changed too quickly
+1. Immidiately notify if all touches ended
+1. Make it working on firefox: touchend d3.touches returns
+different results on chromium and firefox.
+1. limit log history
