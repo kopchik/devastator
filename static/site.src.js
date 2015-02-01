@@ -11,7 +11,7 @@
 
 var $ = require('jquery/jquery:dist/jquery.js')
 var d3 = require('mbostock/d3@v3.5.3');
-// var swfobject = require('fredsterss/swfobject');
+var swfobject = require('fredsterss/swfobject');
 
 var log = {
   info: function(msg) {
@@ -158,6 +158,7 @@ var timer = {
 
 
 $(function() {
+  startStream();
   log.info("started!");
   var svg = d3.select("#controls");
   var svgwidth = parseInt(svg.style("width"));
