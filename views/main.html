@@ -82,10 +82,12 @@ different results on chromium and firefox.
           this.id = id;
           this.color = color;
           this.pos = undefined;
-          this.center = undefined;
-          this.circle = undefined;
-          this.pointer = undefined;
           this.diameter = 100;
+          this.widget = {
+            center: undefined,
+            circle: undefined,
+            pointer: undefined, // rename to touch
+          }
           this.timerEvent = undefined;
           this.updateFreq = 5;  // in Hz
           this.value = [0.0, 0.0];
@@ -102,13 +104,15 @@ different results on chromium and firefox.
           this.stop();  // reset everything;
           this.pos = pos;
           this.canSend = true;
-          this.center = this.svg.append("circle")
+
+          var widget = this.widget;
+          widget.center = this.svg.append("circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
             .attr("r", 2)
           ;
 
-          this.circle = this.svg.append("circle")
+          widget.circle = this.svg.append("circle")
             .attr("class", "circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
@@ -116,7 +120,7 @@ different results on chromium and firefox.
             .style("fill", this.color)
           ;
 
-          this.pointer = this.svg.append("circle")
+          widget.pointer = this.svg.append("circle")
             .attr("cx", pos[0])
             .attr("cy", pos[1])
             .attr("r", 40)
@@ -171,7 +175,7 @@ different results on chromium and firefox.
           // '-' because we invert Y axis
           this.value = [dx/this.diameter, -dy/this.diameter];
 
-          this.pointer
+          this.widget.pointer
             .attr("cx", this.pos[0] + dx)
             .attr("cy", this.pos[1] + dy)
           ;
@@ -182,11 +186,11 @@ different results on chromium and firefox.
           // timer stuff
           this.canSend = false;
           clearInterval(this.timerEvent);
-
+          var widget = this.widget;
           // TODO: put widgets into separate hierarchy?
-          if (this.center) { this.center.remove(); }
-          if (this.circle) { this.circle.remove(); }
-          if (this.pointer)  { this.pointer.remove();  }
+          if (widget.center)  { widget.center.remove();  }
+          if (widget.circle)  { widget.circle.remove();  }
+          if (widget.pointer) { widget.pointer.remove(); }
 
           this.pos = undefined;
           this.value = [0.0, 0.0];
