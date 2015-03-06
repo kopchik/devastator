@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from RPIO import PWM
+PWM.set_loglevel(PWM.LOG_LEVEL_ERRORS)
 
 from operator import itemgetter
 from bisect import bisect_left
@@ -46,7 +47,7 @@ class Timer(Thread):
     while True:
       ready_fds = select.select([self.read_fd], [], [],
                                 self.timeout)
-      print(ready_fds[0])
+      # print(ready_fds[0])
       if self.read_fd in ready_fds[0]:
         mode = os.read(self.read_fd, 1)
         if mode == b'r':
