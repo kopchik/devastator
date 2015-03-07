@@ -42,7 +42,7 @@ class MyServo:
   def _set(self, v):
     v = int(v) // 10 * 10  # TODO: round to 10us
     self.servo.set_servo(self.pin, v)
-    self.timer.reset()
+    self.timer.restart()
     # TODO: limit command rate because charger
     # cannot give enough power for two servos
     #time.sleep(0.3)
