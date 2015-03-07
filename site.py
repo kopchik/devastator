@@ -12,7 +12,7 @@ if gethostname() == 'alarmpi':
   from myservo import MyServo
   xcam = MyServo(pin=13, map={-1: 2500, 0: 1600, +1: 700})
   ycam = MyServo(pin=5, map={-1: 2500, 0: 1400, +1: 700})
-  rwheel = MyServo(pin=21, map={-1: 2500, 0: 1400, +1: 1600})
+  rwheel = MyServo(pin=21, map={-1: 1200, 0: 1410, +1: 1600})
   lwheel = MyServo(pin=26, map={-1: 1600, 0: 1410, +1: 1200})
 
   DEBUG = False  # rpi may hang during reload
