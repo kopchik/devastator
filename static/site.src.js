@@ -173,7 +173,7 @@ $(function() {
   var guard = true;  // throttle server if it is slow to respond
   function timercb() {
     if (!guard) {
-      log.info("server hasn't respond to the previous message, throttling");
+      log.info("server hasn't responded to the previous message, throttling");
       return;
     }
     guard = false;
@@ -182,7 +182,7 @@ $(function() {
       data.set(value.id, value.value);
       // data.push({id: value.id, value: value.value})
     });
-    log.info("DATA " + data);
+    //log.info("DATA " + data);
     var json = JSON.stringify(data['_']);  // TODO: dirty hack
     d3.xhr("/cam/set")
     .header("Content-Type", "application/json")
