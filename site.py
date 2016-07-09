@@ -8,12 +8,13 @@ from subprocess import call, check_call
 import atexit
 
 DEBUG = True
-if gethostname() == 'alarmpi':
+HWHOSTNAME = 'devastator'
+if gethostname() == HWHOSTNAME:
   from myservo import MyServo
-  xcam = MyServo(pin=13, map={-1: 2500, 0: 1600, +1: 700})
-  ycam = MyServo(pin=5, map={-1: 2500, 0: 1400, +1: 700})
-  rwheel = MyServo(pin=21, map={-1: 1200, 0: 1410, +1: 1600})
-  lwheel = MyServo(pin=26, map={-1: 1600, 0: 1410, +1: 1200})
+  xcam = MyServo(name="xcam", pin=13, map={-1: 8.6, 0: 6.8, +1: 4.6})
+  ycam = MyServo(name="ycam", pin=5, map={-1: 9.8, 0: 5.2, +1: 2.7})
+  #rwheel = MyServo(pin=21, map={-1: 1200, 0: 1410, +1: 1600})
+  #lwheel = MyServo(pin=26, map={-1: 1600, 0: 1410, +1: 1200})
 
   DEBUG = False  # rpi may hang during reload
 
@@ -22,7 +23,7 @@ if gethostname() == 'alarmpi':
 def cam():
   req = request.json
   print("got command", req)
-  if gethostname() != 'alarmpi':
+  if gethostname() != HWHOSTNAME:
     return
   if 'look' in req:
     xcam.set(req['look'][0])
